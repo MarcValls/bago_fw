@@ -1,0 +1,36 @@
+{
+  "version": "4.0.0-mvp",
+  "default_provider": "ollama-local",
+  "default_model": "llama3.2:3b",
+  "providers": {
+    "ollama-local": {
+      "enabled": true,
+      "base_url": "http://127.0.0.1:11434",
+      "type": "local"
+    },
+    "copilot": {
+      "enabled": false,
+      "type": "cloud",
+      "cli_bridge": ".bago/connectors/copilot.py"
+    },
+    "codex": {
+      "enabled": false,
+      "type": "cloud",
+      "cli_bridge": ".bago/connectors/codex.py"
+    }
+  },
+  "security": {
+    "auto_allow_tools": false,
+    "require_evidence": true,
+    "blocked_commands": ["format", "diskpart", "rd /s", "rm -rf /"],
+    "dangerous_commands_require_confirmation": true
+  },
+  "trazabilidad": {
+    "obligatory": true,
+    "pattern": "afirmacion -> accion -> evidencia -> conclusion"
+  },
+  "ui": {
+    "color": true,
+    "multiline": false
+  }
+}

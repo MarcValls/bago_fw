@@ -1,0 +1,13 @@
+{
+  "nodes": [
+    {
+      "id": "test-node",
+      "name": "test-node",
+      "type": "generic",
+      "registered_at": "2026-06-05T17:57:55.604203",
+      "mode": "read",
+      "enabled": true
+    }
+  ],
+  "last_updated": "2026-06-05T17:57:55.604238"
+}
