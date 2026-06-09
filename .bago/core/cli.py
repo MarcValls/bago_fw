@@ -10,22 +10,9 @@ import json
 from pathlib import Path
 from datetime import datetime
 
-# Detectar raíz de BAGO dinámicamente
-def find_bago_root():
-    """Encuentra la raíz de BAGO aunque cambie la letra del volumen"""
-    script_path = Path(__file__).resolve()
-    current = script_path.parent
-    
-    # Subir hasta encontrar .bago o bago_fw
-    while current != current.parent:
-        if (current / '.bago').exists() or (current.name == 'bago_fw'):
-            return current
-        current = current.parent
-    
-    # Fallback: usar ruta relativa desde script
-    return script_path.parent.parent
+from paths import app_base_dir
 
-BAGO_ROOT = find_bago_root()
+BAGO_ROOT = app_base_dir()
 os.chdir(BAGO_ROOT)
 
 # Añadir core al path

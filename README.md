@@ -52,6 +52,7 @@ BAGO es un centro de mando local, en terminal, con:
 bago_fw/
 ├── .bago/
 │   ├── core/           # Runtime esencial
+│   │   ├── paths.py    # Rutas y recursos
 │   ├── config/         # Configuración
 │   ├── sessions/       # Sesiones
 │   ├── connectors/     # Puentes CLI

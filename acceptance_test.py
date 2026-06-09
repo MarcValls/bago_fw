@@ -7,8 +7,15 @@ Flujo completo: arranque → sesión → nodos → acciones → evidencia → co
 import subprocess
 import sys
 import json
+import uuid
 from pathlib import Path
 from datetime import datetime
+
+CORE_DIR = Path(__file__).resolve().parent / ".bago" / "core"
+if str(CORE_DIR) not in sys.path:
+    sys.path.insert(0, str(CORE_DIR))
+
+from paths import source_base_dir
 
 class BagoAcceptanceTest:
     """Prueba de aceptación del MVP de BAGO"""
@@ -107,18 +114,34 @@ class BagoAcceptanceTest:
         """Test 5: Nodos y conexiones"""
         print("\n=== TEST 5: Nodos y conexiones ===")
         
-        # Registrar nodo
-        code1, _, _ = self.run_bago_command("connect test-node")
-        
-        # Listar nodos
-        code2, stdout, stderr = self.run_bago_command("nodes")
-        
-        if code1 == 0 and code2 == 0 and "test-node" in stdout:
-            self.log("Nodos registrados y visibles", "PASS")
-            return True
-        else:
+        registry_path = self.bago_root / '.bago' / 'nodes' / 'registry.json'
+        connections_path = self.bago_root / '.bago' / 'nodes' / 'connections.json'
+        registry_before = registry_path.read_text(encoding='utf-8') if registry_path.exists() else None
+        connections_before = connections_path.read_text(encoding='utf-8') if connections_path.exists() else None
+
+        try:
+            # Registrar nodo
+            node_name = f"test-node-{uuid.uuid4().hex[:8]}"
+            code1, _, _ = self.run_bago_command(f"connect {node_name}")
+
+            # Listar nodos
+            code2, stdout, stderr = self.run_bago_command("nodes")
+
+            if code1 == 0 and code2 == 0 and node_name in stdout:
+                self.log("Nodos registrados y visibles", "PASS")
+                return True
             self.log(f"Error con nodos: {stderr}", "FAIL")
             return False
+        finally:
+            if registry_before is None:
+                registry_path.unlink(missing_ok=True)
+            else:
+                registry_path.write_text(registry_before, encoding='utf-8')
+
+            if connections_before is None:
+                connections_path.unlink(missing_ok=True)
+            else:
+                connections_path.write_text(connections_before, encoding='utf-8')
     
     def test_6_ejecucion(self) -> bool:
         """Test 6: Ejecución con trazabilidad"""
@@ -207,20 +230,7 @@ class BagoAcceptanceTest:
         return self.failed == 0
 
 def main():
-    # Detectar raíz de BAGO
-    script_path = Path(__file__).resolve()
-    current = script_path.parent
-    
-    while current != current.parent:
-        if (current / '.bago').exists() or (current.name == 'bago_fw'):
-            bago_root = current
-            break
-        current = current.parent
-    else:
-        print("Error: No se encontró raíz de BAGO")
-        return 1
-    
-    # Ejecutar pruebas
+    bago_root = source_base_dir()
     test = BagoAcceptanceTest(bago_root)
     success = test.run_all()
     
